@@ -97,7 +97,17 @@ class Population private (private var _population: Array[Chromosome], val crosso
 		}
 
 		_population = buffer.sortWith((s, t) => s.fitness < t.fitness)
-	}	
+	}
+	
+	override def toString = {
+	  var result = ""
+	  
+	  for (chromosome <- _population) {
+	    result += chromosome + " (fitness = " + chromosome.fitness + ")\n"
+	  }
+	  
+	  result
+	}
 }
 
 /**
