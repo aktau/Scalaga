@@ -27,7 +27,7 @@ package scalaga
 import scala.util.Random
 
 final case class Chromosome(val x: Int, val y: Int) {
-  val xLim = 20
+  val xLim = 10
   val yLim = 5
   val rounders : IndexedSeq[Double => Int] = IndexedSeq(
       _.round.toInt,
@@ -48,14 +48,6 @@ final case class Chromosome(val x: Int, val y: Int) {
     Chromosome(roundMethod((x + other.x) / 2.0), roundMethod((y + other.y) / 2.0))
   }
   
-  def distance(ox: Int, oy: Int) = {
-    // vector difference, note that the order is not really important for the distance metric
-    val (xdiff, ydiff) = (x - ox, y - oy)
-    
-    // euclides distance
-    math.sqrt(xdiff * xdiff + ydiff * ydiff)
-  }
-  
   lazy val fitness = {
     // here we have the majority of the problem specific information
     
@@ -63,8 +55,21 @@ final case class Chromosome(val x: Int, val y: Int) {
     // TODO: insert dynamic way to specify the distance function
     var totalDistance = 0.0
     
+    val riverHeight = 2
+    val bridge1 = (2.5,2.5)
+    val bridge2 = (7.5,2.5)
+    
     for (i <- 0 until xLim; if i != x; j <- 0 until yLim; if j != y) {
-      totalDistance += distance(i, j)
+      if ((j > riverHeight && y > riverHeight) || (j <= riverHeight && y <= riverHeight)) {
+        // same side
+        totalDistance += Chromosome.euclidDistance(x, y, i, j)
+      }
+      else {
+        totalDistance += math.min(
+            Chromosome.euclidDistance(x, y, bridge1._1, bridge1._2) + Chromosome.euclidDistance(bridge1._1, bridge1._2, i, j),
+            Chromosome.euclidDistance(x, y, bridge2._1, bridge2._2) + Chromosome.euclidDistance(bridge2._1, bridge2._2, i, j)
+        )
+      }
     }
     
     totalDistance
@@ -76,4 +81,11 @@ final case class Chromosome(val x: Int, val y: Int) {
  */
 object Chromosome {
   def getRandom = Chromosome(Random.nextInt(10), Random.nextInt(5))
+  
+  def euclidDistance(x: Double, y: Double, x2: Double, y2: Double) = {
+    val (xdiff, ydiff) = (x - x2, y - y2)
+    
+    // euclides distance
+    math.sqrt(xdiff * xdiff + ydiff * ydiff)
+  }
 }

@@ -41,7 +41,7 @@ class Population private (private var _population: Array[Chromosome], val crosso
 	 */
 	def evolve = {
 		// Create a buffer for the new generation
-		val elitismCount = round(_population.length * elitism)
+		val elitismCount = math.ceil(_population.length * elitism)
 		
 		def randomMutate(ch: Chromosome): Chromosome = {
 			if (Random.nextFloat() <= mutation) ch.mutate else ch
@@ -54,6 +54,7 @@ class Population private (private var _population: Array[Chromosome], val crosso
 			// Randomly select two parents via tournament selection.
 			for (i <- 0 to 1) {
 				parents(i) = _population(Random.nextInt(_population.length))
+				
 				for (j <- 1 to tournamentSize) {
 					val idx = Random.nextInt(_population.length)
 					if (_population(idx).fitness < parents(i).fitness) {
@@ -78,16 +79,6 @@ class Population private (private var _population: Array[Chromosome], val crosso
 				val child = parents(0) mate parents(1)
 				
 				buffer(idx) = randomMutate(child)
-				/*
-				val children = parents(0).mate(parents(1))
-				
-				buffer(idx) = randomMutate(children(0))
-				
-				idx += 1
-				if (idx < buffer.length) {
-					buffer(idx) = randomMutate(children(1))
-				}
-				*/
 			} 
 			else {
 				buffer(idx) = randomMutate(_population(idx))
