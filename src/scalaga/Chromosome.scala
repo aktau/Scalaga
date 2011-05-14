@@ -26,6 +26,16 @@ package scalaga
 
 import scala.util.Random
 
+object mathExtra {
+  def clamp(n: Int, low: Int, high: Int) = {
+    if (n > high) high
+    else if (n < low) low
+    else n
+  }
+}
+
+import mathExtra._
+
 final case class Chromosome(val x: Int, val y: Int) {
   val xLim = 10
   val yLim = 5
@@ -37,7 +47,10 @@ final case class Chromosome(val x: Int, val y: Int) {
   
   def mutate = {
     // look around in the area of the current chromosome
-    Chromosome((x + (2 * Random.nextGaussian).toInt) % xLim, (y + (2 * Random.nextGaussian).toInt) % yLim)
+    Chromosome(
+        clamp(x + (2 * Random.nextGaussian).toInt, 0, xLim - 1), 
+        clamp(y + (2 * Random.nextGaussian).toInt, 0, yLim - 1)
+    )
   }
   
   def mate(other: Chromosome) = {

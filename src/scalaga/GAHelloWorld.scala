@@ -42,7 +42,7 @@ object GAHelloWorld {
     val populationSize = 4 //2048
 
     // The maximum number of generations for the simulation.
-    val maxGenerations = 5 //16384
+    val maxGenerations = 20 //16384
 
     // The probability of crossover for any member of the population,
     // where 0.0 <= crossoverRatio <= 1.0
@@ -54,24 +54,25 @@ object GAHelloWorld {
 
     // The probability of mutation for any member of the population,
     // where 0.0 <= mutationRatio <= 1.0
-    val mutationRatio = 0.1f //0.03f
+    val mutationRatio = 0.5f //0.03f
 
     // Create the initial population
-    val pop = Population(populationSize, crossoverRatio, elitismRatio, mutationRatio)
+    //val pop = Population(populationSize, crossoverRatio, elitismRatio, mutationRatio)
+    val pop = new Population(Population.generateInitialPopulation(populationSize), crossoverRatio, elitismRatio, mutationRatio) with HoldoutTournamentSelection
 
     // Start evolving the population, stopping when the maximum number of
     // generations is reached, or when we find a solution.
-    
-    printObjFun
     
     println("Riverless:")
 	printRiverlessDistanceMap(2,2)
 	println("With river")
 	printDistanceMap(2,2)
+	
+	val optimum = printObjFun
 
     var generation = 1;
-    while (generation <= maxGenerations) {
-      println("Generation " + generation + ": " + pop.population(0) + " (fitness = " + pop.population(0).fitness + ")")
+    while (generation <= maxGenerations && pop.population(0).fitness > optimum) {
+      println("\nGeneration " + generation + ": " + pop.population(0) + " (fitness = " + pop.population(0).fitness + ")")
       println(pop)
       pop.evolve
       generation += 1
@@ -85,7 +86,7 @@ object GAHelloWorld {
   /**
    * For debugging purposes
    */
-  def printObjFun {
+  def printObjFun : Double = {
     val matrix: Array[Array[Double]] = Array.fill(10,5)(0.0)
     var bestChrom = Chromosome(0,0)
     
@@ -102,6 +103,8 @@ object GAHelloWorld {
     //for (i <- 0 until matrix.length) printf("%d : [min: %f] %s\n", i, matrix(i).min, matrix(i).mkString("[", " ", "]"))
     
     printf("BEST CHROMOSOME VALUE: %s (%f)\n", bestChrom, bestChrom.fitness)
+    
+    bestChrom.fitness
   }
   
   def printRiverlessDistanceMap(x: Int, y: Int) {
